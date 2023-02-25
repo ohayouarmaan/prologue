@@ -65,6 +65,12 @@ class Timeline:
             })
         
         return self.inputs
+    
+    def render(self):
+        #TODO: delay the audio and video to match the timeline
+        for m in self.inputs[1:]:
+            pass
+
 
 
 class Editor:
