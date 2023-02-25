@@ -4,13 +4,21 @@ import toml
 
 # Helper classes
 class Media:
-    def __init__(self, path: str):
-        self.path = path
-        if(os.path.isfile(self.path)):
-            self.inp = ffmpeg.input(self.path)
+    def __init__(self, path: str, stream=None, duration=None):
+        if not stream:
+            self.path = path
+            if(os.path.isfile(self.path)):
+                self.inp = ffmpeg.input(self.path)
+            else:
+                self.inp = None
+                raise FileNotFoundError()
+        
+            self.duration = float(ffmpeg.probe(self.path)['streams'][0]['duration'])
         else:
-            self.inp = None
-            raise FileNotFoundError()
+            self.inp = stream
+            self.path = ""
+            self.duration = duration
+
 
     def toJSON(self) -> object:
         return {
@@ -34,12 +42,10 @@ class Timeline:
             return False
     
     def generate(self):
-        c = []
-        for m in self.medias:
-            s = float(ffmpeg.probe(m.path)['streams'][0]['duration'])
-            c.append(s)
-        
         null_stream_length = sum(c)
+        for m in self.medias:
+            null_stream_length += m.duration
+        
         v_null_stream = ffmpeg.input(f"nullsrc=size={self.default_dimensions[0]}x{self.default_dimensions[1]}")
         a_null_stream = ffmpeg.input(f"anullsrc", f="lavfi", t=f"{null_stream_length / 1000}")
         self.inputs.append({
