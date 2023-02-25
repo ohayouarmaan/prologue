@@ -42,7 +42,7 @@ class Timeline:
             return False
     
     def generate(self):
-        null_stream_length = sum(c)
+        null_stream_length = 0
         for m in self.medias:
             null_stream_length += m.duration
         
@@ -54,7 +54,17 @@ class Timeline:
             "vstream": v_null_stream,
             "astream": a_null_stream
         })
+
+        prev_end = 0
+        for m in self.medias:
+            self.inputs.append({
+                "start": prev_end,
+                "end": prev_end + m.duration,
+                "vstream": m.inp['v'],
+                "astream": m.inp['a'],
+            })
         
+        return self.inputs
 
 
 class Editor:
