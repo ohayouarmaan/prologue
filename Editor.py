@@ -87,7 +87,7 @@ class Timeline:
         prev_end = 0
         for m in self.inputs[1:]:
             pts = f"PTS-STARTPTS+{prev_end}/TB"
-            m['vstream'] = m['vstream'].setpts(pts)
+            m['vstream'] = m['vstream'].setpts(pts).filter("scale", self.default_dimensions[0], self.default_dimensions[1])
             self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
             prev_end = m["end"]
 
