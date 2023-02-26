@@ -1,5 +1,6 @@
 import ffmpeg
 import os
+from functions import scale
 import toml
 
 # Helper classes
@@ -61,12 +62,19 @@ class Timeline:
         })
 
         prev_end = 0
+
         for m in self.medias:
+            m.apply(scale.scale, {
+                "width": self.default_dimensions[0],
+                "height": self.default_dimensions[1]
+            })
+
             self.inputs.append({
                 "start": prev_end,
                 "end": prev_end + m.duration,
                 "vstream": m.inp[0],
                 "astream": m.inp[1],
+                "media": m
             })
 
             prev_end = prev_end + m.duration
@@ -87,7 +95,7 @@ class Timeline:
         prev_end = 0
         for m in self.inputs[1:]:
             pts = f"PTS-STARTPTS+{prev_end}/TB"
-            m['vstream'] = m['vstream'].setpts(pts).filter("scale", self.default_dimensions[0], self.default_dimensions[1])
+            m['vstream'] = m['vstream'].setpts(pts)
             self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
             prev_end = m["end"]
 
