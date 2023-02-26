@@ -1,8 +1,7 @@
 import ffmpeg
-from Editor import Media
 
 
-def cut(media: Media, _from: int, _to: int):
+def cut(media, _from: int, _to: int):
     pts="PTS-STARTPTS"
     # v = ffmpeg.trim(media.inp[0], start=_from, end=_to)
     # v = media.inp[0].split().trim(start=_from, end=_to)
