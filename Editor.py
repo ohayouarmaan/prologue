@@ -7,10 +7,13 @@ class Media:
     def __init__(self, path: str, stream=None, duration=None):
         if not stream:
             self.path = path
+            self.inp = []
             if(os.path.isfile(self.path)):
-                self.inp = ffmpeg.input(self.path)
+                inp = ffmpeg.input(self.path)
+                self.inp.append(inp['v'])
+                self.inp.append(inp['a'])
             else:
-                self.inp = None
+                self.inp = []
                 raise FileNotFoundError()
         
             self.duration = float(ffmpeg.probe(self.path)['streams'][0]['duration'])
@@ -18,6 +21,8 @@ class Media:
             self.inp = stream
             self.path = ""
             self.duration = duration
+        
+        print(self.inp)
 
 
     def toJSON(self) -> object:
@@ -46,8 +51,8 @@ class Timeline:
         for m in self.medias:
             null_stream_length += m.duration
         
-        v_null_stream = ffmpeg.input(f"nullsrc=size={self.default_dimensions[0]}x{self.default_dimensions[1]}")
-        a_null_stream = ffmpeg.input(f"anullsrc", f="lavfi", t=f"{null_stream_length / 1000}")
+        v_null_stream = ffmpeg.input(f"nullsrc=size={self.default_dimensions[0]}x{self.default_dimensions[1]}", f="lavfi", t=f"{null_stream_length}")
+        a_null_stream = ffmpeg.input(f"anullsrc", f="lavfi", t=f"{null_stream_length}")
         self.inputs.append({
             "start": 0,
             "end": null_stream_length,
@@ -60,17 +65,22 @@ class Timeline:
             self.inputs.append({
                 "start": prev_end,
                 "end": prev_end + m.duration,
-                "vstream": m.inp['v'],
-                "astream": m.inp['a'],
+                "vstream": m.inp[0],
+                "astream": m.inp[1],
             })
+
+            prev_end = prev_end + m.duration
         
         return self.inputs
     
     def render(self):
         #TODO: delay the audio and video to match the timeline
+        self.final_video_stream = self.inputs[0]['vstream']
+        self.final_audio_stream = self.inputs[0]['astream']
         for m in self.inputs[1:]:
-            pass
+            self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
 
+        return (self.final_video_stream)
 
 
 class Editor:
