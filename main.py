@@ -8,7 +8,7 @@ m2 = Media("./testfiles/2.mp4")
 
 m.apply(cut.cut, {
     "_from": 0,
-    "_to": 4
+    "_to": 14
 })
 
 m2.apply(cut.cut, {

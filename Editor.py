@@ -75,12 +75,24 @@ class Timeline:
     
     def render(self):
         #TODO: delay the audio and video to match the timeline
-        self.final_video_stream = self.inputs[0]['vstream']
+        prev_end = 0
         self.final_audio_stream = self.inputs[0]['astream']
-        for m in self.inputs[1:]:
-            self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
+        for x in self.inputs[1:]:
+            inp = x["astream"].filter("adelay", f"{prev_end}|{prev_end}")
+            self.final_audio_stream = ffmpeg.filter([self.final_audio_stream, inp], "amix")
+            prev_end = x['end']
 
-        return (self.final_video_stream)
+
+        self.final_video_stream = self.inputs[0]['vstream']
+        prev_end = 0
+        for m in self.inputs[1:]:
+            pts = f"PTS-STARTPTS+{prev_end}/TB"
+            m['vstream'] = m['vstream'].setpts(pts)
+            self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
+            prev_end = m["end"]
+
+        self.final_render = ffmpeg.concat(self.final_video_stream, self.final_audio_stream, v=1, a=1)
+        return (self.final_render)
 
 
 class Editor:
