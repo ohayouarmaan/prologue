@@ -19,9 +19,8 @@ m2.apply(cut.cut, {
 e.default_timeline.add(m)
 e.default_timeline.add(m2)
 inpts = (e.default_timeline.generate())
-print(inpts)
-v = e.default_timeline.render()
+v,a = e.default_timeline.render()
 
-x = ffmpeg.output(v, "out.mp4")
-print(x.get_args())
-x.run()
+x = ffmpeg.concat(v,a, v=1, a=1, n=2)
+print(v,a)
+x = x.output("out.mp4").run()
