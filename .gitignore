@@ -1,3 +1,5 @@
 testfiles/
 output/
 *.log
+*.mp4
+*.mp3
