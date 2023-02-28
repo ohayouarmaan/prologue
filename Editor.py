@@ -9,6 +9,7 @@ class Media:
         if not stream:
             self.path = path
             self.inp = []
+            self.config = {}
             if(os.path.isfile(self.path)):
                 inp = ffmpeg.input(self.path)
                 self.inp.append(inp['v'])
@@ -33,6 +34,10 @@ class Media:
     
     def apply(self, filter, args):
         self.inp = filter(self, **args)
+    
+    def configure(self, key, value):
+        self.config[key] = value
+    
 
 class Timeline:
     def __init__(self, medias: list[Media], default_dimensions=(1920, 1080)):
@@ -40,8 +45,12 @@ class Timeline:
         self.default_dimensions = default_dimensions
         self.inputs = []
         
-    def add(self, media: Media) -> bool:
+    def add(self, media: Media, **kwargs) -> bool:
         if media:
+            if kwargs:
+                for c in kwargs:
+                    media.configure(c, kwargs[c])
+
             self.medias.append(media)
             return True
         else:
@@ -61,7 +70,10 @@ class Timeline:
             "astream": a_null_stream
         })
 
-        prev_end = 0
+        if "_from" in list(self.medias[1].config.keys()):
+            prev_end = self.medias[1].config["_from"]
+        else:
+            prev_end = 0
 
         for m in self.medias:
             m.apply(scale.scale, {
@@ -71,7 +83,7 @@ class Timeline:
 
             self.inputs.append({
                 "start": prev_end,
-                "end": prev_end + m.duration,
+                "end": prev_end + [ m.config['_from'] if "_from" in list(m.config.keys()) else m.duration ][0],
                 "vstream": m.inp[0],
                 "astream": m.inp[1],
                 "media": m
@@ -83,7 +95,8 @@ class Timeline:
     
     def render(self):
         #TODO: delay the audio and video to match the timeline
-        prev_end = 0
+        
+        prev_end = self.inputs[1]['start']
         self.final_audio_stream = self.inputs[0]['astream']
         for x in self.inputs[1:]:
             inp = x["astream"].filter("adelay", f"{prev_end}s|{prev_end}s")
@@ -92,7 +105,7 @@ class Timeline:
 
 
         self.final_video_stream = self.inputs[0]['vstream']
-        prev_end = 0
+        prev_end = self.inputs[1]['start']
         for m in self.inputs[1:]:
             pts = f"PTS-STARTPTS+{prev_end}/TB"
             m['vstream'] = m['vstream'].setpts(pts)
