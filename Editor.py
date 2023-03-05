@@ -69,10 +69,11 @@ class Timeline:
             "astream": a_null_stream
         })
 
-        if "_from" in list(self.medias[1].config.keys()):
-            prev_end = self.medias[1].config["_from"]
+        if "_from" in list(self.medias[0].config.keys()):
+            prev_end = self.medias[0].config["_from"]
         else:
             prev_end = 0
+        
 
         for m in self.medias:
             m.apply(scale.scale, {
