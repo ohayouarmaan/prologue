@@ -50,7 +50,6 @@ class Timeline:
             if kwargs:
                 for c in kwargs:
                     media.configure(c, kwargs[c])
-
             self.medias.append(media)
             return True
         else:
@@ -83,7 +82,7 @@ class Timeline:
 
             self.inputs.append({
                 "start": prev_end,
-                "end": prev_end + [ m.config['_from'] if "_from" in list(m.config.keys()) else m.duration ][0],
+                "end": prev_end + m.duration,
                 "vstream": m.inp[0],
                 "astream": m.inp[1],
                 "media": m
@@ -95,10 +94,11 @@ class Timeline:
     
     def render(self):
         #TODO: delay the audio and video to match the timeline
-        
+
         prev_end = self.inputs[1]['start']
         self.final_audio_stream = self.inputs[0]['astream']
         for x in self.inputs[1:]:
+            print(x)
             inp = x["astream"].filter("adelay", f"{prev_end}s|{prev_end}s")
             self.final_audio_stream = ffmpeg.filter([self.final_audio_stream, inp], "amix")
             prev_end = x['end']
