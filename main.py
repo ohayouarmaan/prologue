@@ -17,7 +17,8 @@ m2.apply(cut.cut, {
 })
 
 e.default_timeline.add(m, _from=3)
-e.default_timeline.add(m2)
+e.default_timeline.add(m2, _from=2)
+
 inpts = (e.default_timeline.generate())
 v,a = e.default_timeline.render()
 

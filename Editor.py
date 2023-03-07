@@ -24,7 +24,6 @@ class Media:
             self.path = ""
             self.duration = duration
         
-        print(self.inp)
 
 
     def toJSON(self) -> object:
@@ -99,7 +98,6 @@ class Timeline:
         prev_end = self.inputs[1]['start']
         self.final_audio_stream = self.inputs[0]['astream']
         for x in self.inputs[1:]:
-            print(x)
             inp = x["astream"].filter("adelay", f"{prev_end}s|{prev_end}s")
             self.final_audio_stream = ffmpeg.filter([self.final_audio_stream, inp], "amix")
             prev_end = x['end']
@@ -113,7 +111,6 @@ class Timeline:
             self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
             prev_end = m["end"]
 
-        # self.final_render = ffmpeg.concat(self.final_video_stream, self.final_audio_stream, v=1, a=1)
         return (self.final_video_stream, self.final_audio_stream)
 
 
@@ -125,4 +122,3 @@ class Editor:
 
 if __name__ == "__main__":
     e = Editor()
-    print(e.config)
