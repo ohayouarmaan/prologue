@@ -93,8 +93,6 @@ class Timeline:
         return self.inputs
     
     def render(self):
-        #TODO: delay the audio and video to match the timeline
-
         prev_end = self.inputs[1]['start']
         self.final_audio_stream = self.inputs[0]['astream']
         for x in self.inputs[1:]:
