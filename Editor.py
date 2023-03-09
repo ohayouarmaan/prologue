@@ -55,6 +55,9 @@ class Timeline:
             return False
     
     def generate(self):
+        """
+        Generates different streams be it the audio stream or the video stream of the media object
+        """
         null_stream_length = 0
         for m in self.medias:
             null_stream_length += m.duration
