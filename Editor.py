@@ -113,6 +113,9 @@ class Timeline:
 
 
 class Editor:
+    """
+        Editor object with all the configuration.
+    """
     def __init__(self):
         self.config = toml.load("./CONFIGURATION.toml")['Editor_Configurations']
         self.__version__ = self.config['version']
