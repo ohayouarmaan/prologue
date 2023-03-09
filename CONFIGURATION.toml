@@ -1,3 +1,5 @@
 [Editor_Configurations]
 version = "0.0.1"
 name = "adam"
+author = "Armaan Gupta"
+gitUrl = "https://github.com/ohayouarmaan/new-online-editor"
