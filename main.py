@@ -22,7 +22,6 @@ m2.apply(cut.cut, {
 
 m.apply(fade.fadeIn, {
     "d": 6,
-    "st": 0
 })
 
 e.default_timeline.add(m)
