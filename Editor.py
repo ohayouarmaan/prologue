@@ -1,3 +1,4 @@
+# Import statements
 import ffmpeg
 import os
 from functions import scale
@@ -105,21 +106,17 @@ class Timeline:
         return self.inputs
     
     def render(self):
-        prev_end = self.inputs[1]['start']
         self.final_audio_stream = self.inputs[0]['astream']
         for x in (self.inputs[1:]):
             inp = x["astream"].filter("adelay", f"{x['start']}s|{x['start']}s")
             self.final_audio_stream = ffmpeg.filter([self.final_audio_stream, inp], "amix")
-            prev_end = x['end']
 
 
         self.final_video_stream = self.inputs[0]['vstream']
-        prev_end = self.inputs[1]['start']
         for m in self.inputs[1:]:
             pts = f"PTS-STARTPTS+{m['start']}/TB"
             m['vstream'] = m['vstream'].setpts(pts)
             self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
-            prev_end = m["end"]
 
         return (self.final_video_stream, self.final_audio_stream)
 

@@ -1,6 +1,6 @@
 import ffmpeg
 from Editor import Editor, Media
-from functions import cut
+from functions import cut, volume
 
 e = Editor()
 m = Media("./testfiles/1.mp4")
@@ -11,13 +11,17 @@ m.apply(cut.cut, {
     "_to": 14
 })
 
+m.apply(volume.volume, {
+    "volume": 0.5
+})
+
 m2.apply(cut.cut, {
     "_from": 0,
     "_to": 4
 })
 
 e.default_timeline.add(m, _from=3)
-e.default_timeline.add(m2, _from=10)
+e.default_timeline.add(m2)
 
 inpts = (e.default_timeline.generate())
 v,a = e.default_timeline.render()
