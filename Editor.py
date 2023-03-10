@@ -56,7 +56,7 @@ class Timeline:
     
     def generate(self):
         """
-        Generates different streams be it the audio stream or the video stream of the media object
+        Generates different media streams accordingly.
         """
         null_stream_length = 0
         for m in self.medias:
@@ -77,29 +77,38 @@ class Timeline:
             prev_end = 0
         
 
-        for m in self.medias:
+        for t in range(len(self.medias)):
+            m = self.medias[t]
             m.apply(scale.scale, {
                 "width": self.default_dimensions[0],
                 "height": self.default_dimensions[1]
             })
 
-            self.inputs.append({
-                "start": prev_end,
-                "end": prev_end + m.duration,
-                "vstream": m.inp[0],
-                "astream": m.inp[1],
-                "media": m
-            })
+            if "_from" in list(m.config.keys()):
+                self.inputs.append({
+                    "start": m.config['_from'],
+                    "end": m.config['_from'] + m.duration,
+                    "vstream": m.inp[0],
+                    "astream": m.inp[1],
+                    "media": m
+                })
+            else:
+                self.inputs.append({
+                    "start": prev_end,
+                    "end": prev_end + m.duration,
+                    "vstream": m.inp[0],
+                    "astream": m.inp[1],
+                    "media": m
+                })
 
             prev_end = prev_end + m.duration
-        
         return self.inputs
     
     def render(self):
         prev_end = self.inputs[1]['start']
         self.final_audio_stream = self.inputs[0]['astream']
-        for x in self.inputs[1:]:
-            inp = x["astream"].filter("adelay", f"{prev_end}s|{prev_end}s")
+        for x in (self.inputs[1:]):
+            inp = x["astream"].filter("adelay", f"{x['start']}s|{x['start']}s")
             self.final_audio_stream = ffmpeg.filter([self.final_audio_stream, inp], "amix")
             prev_end = x['end']
 
@@ -107,7 +116,7 @@ class Timeline:
         self.final_video_stream = self.inputs[0]['vstream']
         prev_end = self.inputs[1]['start']
         for m in self.inputs[1:]:
-            pts = f"PTS-STARTPTS+{prev_end}/TB"
+            pts = f"PTS-STARTPTS+{m['start']}/TB"
             m['vstream'] = m['vstream'].setpts(pts)
             self.final_video_stream = ffmpeg.overlay(self.final_video_stream, m['vstream'], enable=f"between(t,{m['start']},{m['end']})")
             prev_end = m["end"]

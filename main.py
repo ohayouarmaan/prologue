@@ -17,10 +17,15 @@ m2.apply(cut.cut, {
 })
 
 e.default_timeline.add(m, _from=3)
-e.default_timeline.add(m2)
+e.default_timeline.add(m2, _from=10)
 
 inpts = (e.default_timeline.generate())
 v,a = e.default_timeline.render()
 
 x = ffmpeg.concat(v,a, v=1, a=1, n=2)
-x = x.output("out.mp4").run()
+x = x.output("out.mp4")
+
+with open("test_logs.log", "w") as f:
+    f.write(" ".join(x.get_args()))
+
+x.run()
