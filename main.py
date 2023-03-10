@@ -1,14 +1,14 @@
 import ffmpeg
 from Editor import Editor, Media
-from functions import cut, volume
+from functions import cut, volume, fade
 
 e = Editor()
-m = Media("./testfiles/1.mp4")
+m = Media("./testfiles/3.mp4")
 m2 = Media("./testfiles/2.mp4")
 
 m.apply(cut.cut, {
     "_from": 0,
-    "_to": 14
+    "_to": 10
 })
 
 m.apply(volume.volume, {
@@ -20,7 +20,12 @@ m2.apply(cut.cut, {
     "_to": 4
 })
 
-e.default_timeline.add(m, _from=3)
+m.apply(fade.fadeIn, {
+    "d": 6,
+    "st": 0
+})
+
+e.default_timeline.add(m)
 e.default_timeline.add(m2)
 
 inpts = (e.default_timeline.generate())
