@@ -27,6 +27,8 @@ class Renderer:
                 "type": _type
             }
         
+
+        
     def from_string(self, markup: str):
         _type = "markup"
         self.value = markup
@@ -43,5 +45,5 @@ class Renderer:
             }
     
     def render(self):
-        if self.type == "url":
-            self.driver
+        pass
+
