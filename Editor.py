@@ -26,7 +26,6 @@ class Media:
             self.duration = duration
         
 
-
     def toJSON(self) -> object:
         return {
             "path": self.path,
