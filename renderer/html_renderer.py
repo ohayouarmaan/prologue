@@ -2,6 +2,8 @@ import os
 import sys
 import selenium
 import random
+import base64
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -49,7 +51,7 @@ class Renderer:
                 "type": _type
             }
 
-    def __open_new_tab(self, _id, color):
+    def __open_new_tab(self, _id, color, folder_name):
         body = self.driver.find_element(By.TAG_NAME, "body")
         self.driver.execute_script('''
             window.open('', '_blank');
@@ -59,12 +61,22 @@ class Renderer:
         self.driver.execute_script(f'''
             window.document.getElementsByTagName('body')[0].style.backgroundColor = '{color}';
         ''')
+        print(str(_id) + self.inputs[_id]["src"])
+        file_name = f'{str(_id) + self.inputs[_id]["src"]}.png'.replace("/", "_").replace("\\", "").replace(":","")
+        print(file_name)
+        self.driver.get_screenshot_as_file(file_name)
     
     def render(self):
+        color = f"rgb({random.randint(1, 255)}, {random.randint(1, 255)}, {random.randint(1, 255)})"
+        __id = base64.b64encode(f'{time.time()}'.encode("utf8"))
+        os.mkdir(__id)
+        os.chdir(__id)
+        folder_name = base64.b64encode(f'{str(time.time())}'.encode("utf8")).decode("utf8")
         for _id in self.inputs:
-            color = f"rgb({random.randint(1, 255)}, {random.randint(1, 255)}, {random.randint(1, 255)})"
             print(_id)
-            self.__open_new_tab(_id, color)
+            self.__open_new_tab(_id, color, folder_name)
+        
+        os.chdir("..")
         
         self.driver.switch_to.window(self.driver.window_handles[0])
         self.driver.close()
