@@ -44,7 +44,11 @@ change audio of a given stream
 | `volume`      | `float 0 <= x <= 1` | **Required**. Manipulates the volume of the audio stream |
 
 
+## Current Plan
 
+1. [  ] I'll be working on rendering a piece of html as a transparent jpg and then it can be used to add stickers or whatever you want to
+
+2. [  ] Create a community / write blog posts about prologue it'll help in involving more people into this project and thus accelerating the development of prologue
 
 ## Badges
 
