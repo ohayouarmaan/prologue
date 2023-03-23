@@ -21,14 +21,14 @@ m2.apply(cut.cut, {
 })
 
 m.apply(fade.fadeIn, {
-    "duration": 6,
+    "duration": 3,
 })
 
 e.default_timeline.add(m)
 e.default_timeline.add(m2)
 
 inpts = (e.default_timeline.generate())
-v,a = e.default_timeline.render()
+v, a = e.default_timeline.render()
 
 x = ffmpeg.concat(v,a, v=1, a=1, n=2)
 x = x.output("out.mp4")
