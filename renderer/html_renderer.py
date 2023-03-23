@@ -5,6 +5,7 @@ import base64
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import cv2
 
 class Renderer:
     def __init__(self, exec_path="./chromedriver.exe"):
@@ -65,11 +66,13 @@ class Renderer:
         self.driver.execute_script(f'''
             window.document.getElementsByTagName('body')[0].style.backgroundColor = '{color}';
         ''')
-        print(str(_id) + self.inputs[_id]["src"])
         file_name = f'{str(_id) + self.inputs[_id]["src"]}.png'.replace("/", "_").replace("\\", "").replace(":","")
-        print(file_name)
         self.driver.get_screenshot_as_file(file_name)
-    
+        image = cv2.imread(file_name)
+
+
+
+
     def render(self):
         """
         renders the images with a generated id and returns it which can be used to get the sticker
