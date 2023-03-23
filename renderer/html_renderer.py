@@ -1,6 +1,5 @@
 import os
 import sys
-import selenium
 import random
 import base64
 import time
@@ -9,6 +8,9 @@ from selenium.webdriver.common.by import By
 
 class Renderer:
     def __init__(self, exec_path="./chromedriver.exe"):
+        """
+        creates a renderer object which can be used as a sticker generator
+        """
         self.driver_options = webdriver.chrome.options.Options()
         self.driver_options.add_experimental_option("detach", True)
         self.driver_options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -16,6 +18,10 @@ class Renderer:
         self.inputs = {}
 
     def add_html(self, src: str):
+        """
+        adds a html file / url which can be used as a source for creating stickers
+        """
+
         _type = ""
         if src.startswith("https://") or src.startswith("http://"):
             _type = "url"
@@ -33,8 +39,6 @@ class Renderer:
                 "src": src,
                 "type": _type
             }
-        
-
         
     def from_string(self, markup: str):
         _type = "markup"
@@ -67,15 +71,19 @@ class Renderer:
         self.driver.get_screenshot_as_file(file_name)
     
     def render(self):
+        """
+        renders the images with a generated id and returns it which can be used to get the sticker
+        """
+
         color = f"rgb({random.randint(1, 255)}, {random.randint(1, 255)}, {random.randint(1, 255)})"
         __id = base64.b64encode(f'{time.time()}'.encode("utf8"))
+        
         os.mkdir(__id)
         os.chdir(__id)
         folder_name = base64.b64encode(f'{str(time.time())}'.encode("utf8")).decode("utf8")
         for _id in self.inputs:
             print(_id)
             self.__open_new_tab(_id, color, folder_name)
-        
         os.chdir("..")
         
         self.driver.switch_to.window(self.driver.window_handles[0])
