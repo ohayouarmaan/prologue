@@ -70,12 +70,13 @@ class Renderer:
         file_name = f'{str(_id) + self.inputs[_id]["src"]}.png'.replace("/", "_").replace("\\", "").replace(":","")
         self.driver.get_screenshot_as_file(file_name)
         image = cv2.cvtColor(cv2.imread(file_name), cv2.COLOR_RGB2RGBA)
-        width, height = self.driver.get_window_size()['width'], self.driver.get_window_size()['height']
-        for y in range(height):
-            for x in range(width):
-                if tuple(image[y, x][:3]) == tuple(col):
-                    image[y, x][-1] = 0
-        print(image)
+        h, w, c = image.shape
+        for y in range(h):
+            for x in range(w):
+                if(set(image[y, x][:3]) == {col[0], col[1], col[2]}):
+                    image[y,x][-1] = 0
+        os.remove(file_name)
+        cv2.imwrite(file_name, image)
 
     def render(self):
         """
