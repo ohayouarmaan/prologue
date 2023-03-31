@@ -56,30 +56,32 @@ class Renderer:
                 "type": _type
             }
 
-    def __open_new_tab(self, _id, color, folder_name):
+    def __open_new_tab(self, _id, col, folder_name):
         body = self.driver.find_element(By.TAG_NAME, "body")
         self.driver.execute_script('''
             window.open('', '_blank');
         ''')
         self.driver.switch_to.window(self.driver.window_handles[-1])
         self.driver.get('file://' + os.path.abspath(self.inputs[_id]['src']))
+        color = f"rgb({col[0]}, {col[1]}, {col[2]})"
         self.driver.execute_script(f'''
             window.document.getElementsByTagName('body')[0].style.backgroundColor = '{color}';
         ''')
         file_name = f'{str(_id) + self.inputs[_id]["src"]}.png'.replace("/", "_").replace("\\", "").replace(":","")
         self.driver.get_screenshot_as_file(file_name)
-        image = cv2.imread(file_name)
+        image = cv2.cvtColor(cv2.imread(file_name), cv2.COLOR_RGB2RGBA)
+        width, height = self.driver.get_window_size()['width'], self.driver.get_window_size()['height']
+        for y in range(height):
+            for x in range(width):
+                if tuple(image[y, x][:3]) == tuple(col):
+                    image[y, x][-1] = 0
         print(image)
-
-
-
 
     def render(self):
         """
         renders the images with a generated id and returns it which can be used to get the sticker
         """
-
-        color = f"rgb({random.randint(1, 255)}, {random.randint(1, 255)}, {random.randint(1, 255)})"
+        col = [random.randint(1, 255), random.randint(1, 255), random.randint(1, 255)]
         __id = base64.b64encode(f'{time.time()}'.encode("utf8"))
         
         os.mkdir(__id)
@@ -87,7 +89,7 @@ class Renderer:
         folder_name = base64.b64encode(f'{str(time.time())}'.encode("utf8")).decode("utf8")
         for _id in self.inputs:
             print(_id)
-            self.__open_new_tab(_id, color, folder_name)
+            self.__open_new_tab(_id, col, folder_name)
         os.chdir("..")
         
         self.driver.switch_to.window(self.driver.window_handles[0])
