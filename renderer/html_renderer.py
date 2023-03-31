@@ -69,6 +69,7 @@ class Renderer:
         file_name = f'{str(_id) + self.inputs[_id]["src"]}.png'.replace("/", "_").replace("\\", "").replace(":","")
         self.driver.get_screenshot_as_file(file_name)
         image = cv2.imread(file_name)
+        print(image)
 
 
 
